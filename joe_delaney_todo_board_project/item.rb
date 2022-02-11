@@ -17,7 +17,8 @@ class Item
         raise 'deadline is not a valid date' if !Item.valid_date?(deadline)
         @title = title
         @deadline = deadline
-        @description = description 
+        @description = description
+        @done = false
     end
 
     def title=(new_title)
@@ -31,5 +32,13 @@ class Item
 
     def description=(new_description)
         @description = new_description
+    end
+
+    def toggle
+        @done = !@done
+    end
+
+    def done?
+        @done 
     end
 end

@@ -3,10 +3,11 @@ require_relative 'item.rb'
 class List
 
     # print styles
-    LINE_WIDTH = 42
+    LINE_WIDTH = 50
     INDEX_COL_WIDTH = 5
     ITEM_COL_WIDTH = 20
     DEADLINE_COL_WIDTH = 10
+    DONE_COL_WIDTH = 5
 
 
     attr_reader :label
@@ -60,10 +61,12 @@ class List
         puts "-" * LINE_WIDTH
         puts " " * 16 + self.label.upcase
         puts "-" * LINE_WIDTH
-        puts "#{'Index'.ljust(INDEX_COL_WIDTH)} | #{'Item'.ljust(ITEM_COL_WIDTH)} | #{'Deadline'.ljust(DEADLINE_COL_WIDTH)}"
+        puts "#{'Index'.ljust(INDEX_COL_WIDTH)} | #{'Item'.ljust(ITEM_COL_WIDTH)} | #{'Deadline'.ljust(DEADLINE_COL_WIDTH)} | #{'Done'.ljust(DONE_COL_WIDTH)}"
         puts "-" * LINE_WIDTH
         @items.each_with_index do |item, i|
-            puts "#{i.to_s.ljust(INDEX_COL_WIDTH)} | #{item.title.ljust(ITEM_COL_WIDTH)} | #{item.deadline.ljust(DEADLINE_COL_WIDTH)}"
+            done_txt = '[✓]' if item.done?
+            done_txt = '[ ]' if !item.done?
+            puts "#{i.to_s.ljust(INDEX_COL_WIDTH)} | #{item.title.ljust(ITEM_COL_WIDTH)} | #{item.deadline.ljust(DEADLINE_COL_WIDTH)} | #{done_txt.ljust(DONE_COL_WIDTH)}"
         end
         puts "-" * LINE_WIDTH
     end
@@ -71,8 +74,10 @@ class List
     def print_full_item(index)
         if valid_index?(index)
             item = @items[index]
+            done_txt = '[✓]' if item.done?
+            done_txt = '[ ]' if !item.done?
             puts "-" * LINE_WIDTH
-            puts "#{item.title.ljust(LINE_WIDTH/2)}#{item.deadline.rjust(LINE_WIDTH/2)}"
+            puts "#{item.title.ljust(LINE_WIDTH/3)}#{item.deadline.rjust(LINE_WIDTH/3)}#{done_txt.rjust(LINE_WIDTH/3)}"
             puts item.description
             puts "-" * LINE_WIDTH
         end
@@ -110,5 +115,37 @@ class List
 
     def sort_by_date!
         @items.sort_by! { |item| item.deadline}
+    end
+
+    def toggle_item(index)
+        if valid_index?(index)
+            @items[index].toggle
+            return true
+        else
+            return false
+        end
+    end
+
+    def remove_item(index)
+        if valid_index?(index)
+            @items.delete_at(index)
+        else
+            return false 
+        end
+    end
+
+    def purge
+        complete = false
+        while !complete
+            complete = true
+            i = 0
+            while complete && i < @items.length
+                if @items[i].done?
+                    remove_item(i)
+                    complete = false
+                end
+                i += 1
+            end
+        end
     end
 end
